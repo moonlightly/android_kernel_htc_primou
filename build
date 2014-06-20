@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "****Очистка старых конфигов****"
+rm -rf modules
+mkdir modules
+export ARCH=arm
+
+export CROSS_COMPILE=~/android/arm-eabi-4.9/bin/arm-eabi-
+export EABI_PATCH=~/android/arm-eabi-4.9/bin
+export KERNELRELEASE=3.0.101
+make clean && make mrproper
+
+echo "****Сборка ядра****"
+make primou_defconfig
+make -j2
+
+echo "****Сборка завершена****"
+
