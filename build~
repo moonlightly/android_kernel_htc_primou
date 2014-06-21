@@ -17,6 +17,8 @@ make -j3
 echo "****** Установка модулей ******"
 find . -name "*.ko" -exec cp {} ~/android/kitkat/kernel/modules/ \;
 
+$EABI_PATCH/arm-eabi-strip -S ~/android/kitkat/kernel/modules/*.ko
+
 cp arch/arm/boot/zImage ~/android/kitkat/zImage
 cd ~/android/kitkat
 
