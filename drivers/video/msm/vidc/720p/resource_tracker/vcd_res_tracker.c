@@ -40,6 +40,8 @@ static unsigned int axi_clk_freq_table_dec[2] = {
 
 static struct res_trk_context resource_context;
 
+static bool is_encoding = false;
+
 #define VIDC_BOOT_FW			"vidc_720p_command_control.fw"
 #define VIDC_MPG4_DEC_FW		"vidc_720p_mp4_dec_mc.fw"
 #define VIDC_H263_DEC_FW		"vidc_720p_h263_dec_mc.fw"
@@ -714,12 +716,22 @@ u32 res_trk_get_core_type(void){
 }
 
 u32 res_trk_get_mem_type(void){
-	return resource_context.memtype;
+	u32 mem_type;
+
+	if (res_trk_get_enable_ion())
+		mem_type = ION_HEAP(resource_context.memtype);
+	else
+		mem_type = resource_context.vidc_platform_data->memtype_pmem;
+
+  	return mem_type;
 }
 
 u32 res_trk_get_enable_ion(void)
 {
-	return 0;
+	if (resource_context.vidc_platform_data->enable_ion && !is_encoding)
+  		return 1;
+  	else
+  		return 0;
 }
 
 struct ion_client *res_trk_get_ion_client(void)
@@ -753,3 +765,8 @@ int res_trk_close_secure_session()
 	return 0;
 }
 #endif
+
+void res_trk_set_is_encoding(bool encoding)
+{
+	is_encoding = encoding;
+}

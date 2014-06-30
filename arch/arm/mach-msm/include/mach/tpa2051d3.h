@@ -15,6 +15,7 @@
 #define BEATS_OFF_OUTPUT 5
 #define LINEOUT_OUTPUT 6
 #define MODE_CMD_LEM 9
+
 struct tpa2051d3_platform_data {
 	uint32_t gpio_tpa2051_spk_en;
 	unsigned char spkr_cmd[7];

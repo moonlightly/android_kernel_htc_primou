@@ -147,6 +147,7 @@ int __init primou_init_panel(void);
 #ifdef CONFIG_ION_MSM
 static struct platform_device ion_dev;
 #define MSM_ION_HEAP_NUM	2
+#define MSM_ION_SF_SIZE		MSM_PMEM_SF_SIZE
 #endif
 
 static unsigned int engineerid;
@@ -2176,13 +2177,14 @@ static struct i2c_board_info msm_i2c_gsbi7_timpani_info[] = {
 	},
 };
 
+#ifdef CONFIG_MSM7KV2_AUDIO
 static struct i2c_board_info tpa2051_devices[] = {
 	{
 		I2C_BOARD_INFO(TPA2051D3_I2C_NAME, 0xE0 >> 1),
 		.platform_data = &tpa2051d3_platform_data,
 	},
 };
-#ifdef CONFIG_MSM7KV2_AUDIO
+
 static struct resource msm_aictl_resources[] = {
 	{
 		.name = "aictl",
@@ -2287,11 +2289,6 @@ struct platform_device msm_aictl_device = {
 	.id   = 0,
 	.num_resources = ARRAY_SIZE(msm_aictl_resources),
 	.resource = msm_aictl_resources,
-};
-
-struct platform_device htc_drm = {
-	.name = "htcdrm",
-	.id = 0,
 };
 
 struct platform_device msm_mi2s_device = {
@@ -2692,7 +2689,7 @@ static struct android_pmem_platform_data android_pmem_pdata = {
 	.name = "pmem",
 	.allocator_type = PMEM_ALLOCATORTYPE_ALLORNOTHING,
 	.cached = 1,
-	.memory_type = MEMTYPE_EBI1,
+	.memory_type = MEMTYPE_EBI0,
 };
 
 static struct platform_device android_pmem_device = {
@@ -2716,25 +2713,13 @@ static struct android_pmem_platform_data android_pmem_adsp_pdata = {
        .name = "pmem_adsp",
        .allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
        .cached = 1,
-	.memory_type = MEMTYPE_EBI1,
-};
-static struct android_pmem_platform_data android_pmem_audio_pdata = {
-       .name = "pmem_audio",
-       .allocator_type = PMEM_ALLOCATORTYPE_BITMAP,
-       .cached = 0,
-	.memory_type = MEMTYPE_EBI1,
+	.memory_type = MEMTYPE_EBI0,
 };
 
 static struct platform_device android_pmem_adsp_device = {
        .name = "android_pmem",
        .id = 2,
        .dev = { .platform_data = &android_pmem_adsp_pdata },
-};
-
-static struct platform_device android_pmem_audio_device = {
-       .name = "android_pmem",
-       .id = 4,
-       .dev = { .platform_data = &android_pmem_audio_pdata },
 };
 
 #if defined(CONFIG_CRYPTO_DEV_QCRYPTO) || \
@@ -3299,7 +3284,6 @@ static struct platform_device *devices[] __initdata = {
         &msm_rotator_device,
 #endif
         &android_pmem_adsp_device,
-        &android_pmem_audio_device,
         &msm_device_i2c,
         &msm_device_i2c_2,
         &hs_device,
@@ -3402,7 +3386,6 @@ static struct platform_device *devices_CH[] __initdata = {
 	&msm_rotator_device,
 #endif
 	&android_pmem_adsp_device,
-	&android_pmem_audio_device,
 	&msm_device_i2c,
 	&msm_device_i2c_2,
 	&hs_device,
@@ -3468,7 +3451,6 @@ static struct platform_device *devices_CH[] __initdata = {
 	&pm8058_leds_CH,
 	&cable_detect_device,
 	&htc_headset_mgr,
-	&htc_drm,
 };
 
 static struct msm_gpio msm_i2c_gpios_hw[] = {
@@ -4399,11 +4381,10 @@ static void __init size_pmem_devices(void)
 {
 #ifdef CONFIG_ANDROID_PMEM
 	size_pmem_device(&android_pmem_adsp_pdata, 0, pmem_adsp_size);
-	size_pmem_device(&android_pmem_audio_pdata, 0, pmem_audio_size);
 #ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
 	size_pmem_device(&android_pmem_pdata, 0, pmem_sf_size);
  #endif
-	msm7x30_reserve_table[MEMTYPE_EBI1].size += PMEM_KERNEL_EBI1_SIZE;
+	msm7x30_reserve_table[MEMTYPE_EBI0].size += PMEM_KERNEL_EBI0_SIZE;
 #endif
 }
 
@@ -4421,7 +4402,6 @@ static void __init reserve_pmem_memory(void)
 {
 #ifdef CONFIG_ANDROID_PMEM
 	reserve_memory_for(&android_pmem_adsp_pdata);
-	reserve_memory_for(&android_pmem_audio_pdata);
         msm7x30_reserve_table[MEMTYPE_EBI0].size += PMEM_KERNEL_EBI0_SIZE;
 #ifndef CONFIG_MSM_MULTIMEDIA_USE_ION
 	reserve_memory_for(&android_pmem_pdata);
@@ -4455,9 +4435,9 @@ static void __init msm7x30_calculate_reserve_sizes(void)
 static int msm7x30_paddr_to_memtype(unsigned int paddr)
 {
 	if (paddr < 0x40000000)
-		return MEMTYPE_EBI1;
+		return MEMTYPE_EBI0;
 	if (paddr >= 0x40000000 && paddr < 0x80000000)
-		return MEMTYPE_EBI1;
+		return MEMTYPE_EBI0;
 	return MEMTYPE_NONE;
 }
 

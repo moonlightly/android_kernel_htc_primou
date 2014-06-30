@@ -2163,6 +2163,7 @@ static int vid_dec_open(struct inode *inode, struct file *file)
 static int vid_dec_open_secure(struct inode *inode, struct file *file)
 {
 	mutex_lock(&vid_dec_device_p->lock);
+	vcd_set_is_encoding(false);
 	if (res_trk_check_for_sec_session() || vcd_get_num_of_clients()) {
 		ERR("Secure session present return failure\n");
 		mutex_unlock(&vid_dec_device_p->lock);
@@ -2187,6 +2188,7 @@ static int vid_dec_open(struct inode *inode, struct file *file)
 {
 	INFO("msm_vidc_dec: Inside %s()", __func__);
 	mutex_lock(&vid_dec_device_p->lock);
+	vcd_set_is_encoding(false);
 	if (res_trk_check_for_sec_session()) {
 		ERR("Secure session present return failure\n");
 		mutex_unlock(&vid_dec_device_p->lock);

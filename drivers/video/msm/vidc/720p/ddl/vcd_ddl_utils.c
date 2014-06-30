@@ -112,6 +112,7 @@ void ddl_pmem_alloc(struct ddl_buf_addr *buff_addr, size_t sz, u32 align)
 	ddl_context = ddl_get_context();
 	alloc_size = sz + guard_bytes;
 
+	ddl_context->memtype = res_trk_get_mem_type();
 	physical_addr = (u32)
 		allocate_contiguous_memory_nomap(alloc_size,
 					ddl_context->memtype, SZ_4K);
